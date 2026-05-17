@@ -46,25 +46,29 @@ The Agrinova Information System was designed to fulfill the following objectives
 
 Agrinova follows a classic **three-tier information system architecture**:
 
-```
-┌───────────────────────────────────────────────────────────────┐
-│                    PRESENTATION TIER                          │
-│         React Dashboard + Leaflet Maps + Recharts             │
-│            (Single Page Application — SPA)                    │
-└────────────────────────┬──────────────────────────────────────┘
-                         │  HTTP / REST API (JSON)
-                         │  Proxied via Vite Dev Server
-┌────────────────────────▼──────────────────────────────────────┐
-│                    APPLICATION TIER                            │
-│           Python FastAPI — Business Logic & API                │
-│         Data validation (Pydantic) + ORM (SQLAlchemy)         │
-└────────────────────────┬──────────────────────────────────────┘
-                         │  SQL (SQLAlchemy ORM)
-┌────────────────────────▼──────────────────────────────────────┐
-│                       DATA TIER                               │
-│              SQLite Relational Database                        │
-│          (agrinova.db — file-based, zero config)              │
-└───────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Presentation["🖥️ PRESENTATION TIER"]
+        A["React Dashboard + Leaflet Maps + Recharts"]
+        A1["Single Page Application — SPA"]
+    end
+
+    subgraph Application["⚙️ APPLICATION TIER"]
+        B["Python FastAPI — Business Logic & API"]
+        B1["Data Validation: Pydantic | ORM: SQLAlchemy"]
+    end
+
+    subgraph Data["🗄️ DATA TIER"]
+        C["SQLite Relational Database"]
+        C1["agrinova.db — file-based, zero config"]
+    end
+
+    Presentation -->|"HTTP / REST API (JSON) — Proxied via Vite"| Application
+    Application -->|"SQL (SQLAlchemy ORM)"| Data
+
+    style Presentation fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style Application fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style Data fill:#d1fae5,stroke:#10b981,stroke-width:2px
 ```
 
 ### Tier Responsibilities
@@ -133,34 +137,18 @@ The **Load** step operates in two directions:
 
 ### 4.4 ETL Flow Diagram
 
-```
-  ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
-  │   EXTRACT    │     │    TRANSFORM     │     │     LOAD     │
-  │              │     │                  │     │              │
-  │ Mock Sensors ├────►│ Validate Schema  ├────►│ SQLite DB    │
-  │ (mockData.ts)│     │ Normalize Units  │     │ (agrinova.db)│
-  │              │     │ Assign Relations │     │              │
-  └──────────────┘     └──────────────────┘     └──────┬───────┘
-                                                       │
-                                                       │ SQL Query
-                                                       │
-                                                ┌──────▼───────┐
-                                                │  TRANSFORM   │
-                                                │  (API Layer) │
-                                                │              │
-                                                │ Flat → Nested│
-                                                │ JSON Mapping │
-                                                └──────┬───────┘
-                                                       │
-                                                       │ REST API
-                                                       │
-                                                ┌──────▼───────┐
-                                                │     LOAD     │
-                                                │  (Frontend)  │
-                                                │              │
-                                                │  Dashboard   │
-                                                │  Charts/Maps │
-                                                └──────────────┘
+```mermaid
+flowchart TD
+    E["📥 EXTRACT\nMock Sensors\n(mockData.ts / seed.py)"] -->|Raw Data| T1["🔄 TRANSFORM — Stage 1\nValidate Schema\nNormalize Units\nAssign Foreign Keys"]
+    T1 -->|Cleaned Records| L1["💾 LOAD — Into Database\nSQLite (agrinova.db)\nFarms · Zones · Sensors · Crops"]
+    L1 -->|SQL Query| T2["🔄 TRANSFORM — Stage 2\nAPI Layer (main.py)\nFlat DB → Nested JSON\nResolve Zone Names & Coordinates"]
+    T2 -->|REST API Response| L2["📊 LOAD — Into Dashboard\nReact Components\nCharts · Maps · Gauges"]
+
+    style E fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#000
+    style T1 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+    style L1 fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#000
+    style T2 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+    style L2 fill:#fce7f3,stroke:#ec4899,stroke-width:2px,color:#000
 ```
 
 ---
@@ -171,28 +159,61 @@ The **Load** step operates in two directions:
 
 The database follows a normalized relational design with the following entities and relationships:
 
-```
-┌───────────┐       ┌───────────┐       ┌───────────┐
-│   FARM    │1─────*│   ZONE    │       │   CROP    │
-│           │       │           │       │           │
-│ id (PK)   │       │ id (PK)   │       │ crop_id   │
-│ name      │       │ farm_id   │───┐   │ crop_name │
-│ location  │       │ name      │   │   │ suitab... │
-│ region    │       │ hectares  │   │   │ profit... │
-│ hectares  │       │ health... │   │   └───────────┘
-│ owner     │       │ status    │   │
-└─────┬─────┘       └───────────┘   │
-      │                             │
-      │1                            │
-      │         ┌───────────┐       │
-      └────────*│  SENSOR   │*──────┘
-                │           │
-                │ id (PK)   │
-                │ farm_id   │
-                │ zone_id   │
-                │ ph, ec... │
-                │ NPK values│
-                └───────────┘
+```mermaid
+erDiagram
+    FARM ||--o{ ZONE : "contains"
+    FARM ||--o{ SENSOR : "owns"
+    ZONE ||--o{ SENSOR : "deployed in"
+
+    FARM {
+        string id PK
+        string name
+        string location
+        string region
+        float hectares
+        string owner
+        string subscription_tier
+        string currency
+    }
+
+    ZONE {
+        string id PK
+        string farm_id FK
+        string name
+        string name_fr
+        string color
+        float hectares
+        float health_score
+        string status
+    }
+
+    SENSOR {
+        string id PK
+        string farm_id FK
+        string zone_id FK
+        string type
+        string name
+        float health_score
+        string status
+        float battery_percent
+        float ph
+        float ec
+        float moisture
+        float temperature
+        float nitrogen
+        float phosphorus
+        float potassium
+    }
+
+    CROP {
+        string crop_id PK
+        string crop_name
+        string crop_name_ar
+        int suitability_score
+        string suitability_level
+        string profitability
+        float expected_yield_tons_per_hectare
+    }
 ```
 
 ### 5.2. Table Descriptions

@@ -1,0 +1,9 @@
+{
+  "name": "AgriSmart Soil Platform",
+  "description": "Real-time soil monitoring and AI-driven agricultural intelligence platform for precision farming.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

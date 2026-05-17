@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { farmData } from '../services/mockData';
+import { api } from '../services/api';
+import { farmData as fallbackData } from '../services/mockData';
 import { Sensor } from '../types';
 import { 
   CloudRain, 
@@ -21,11 +22,31 @@ import {
   ChevronRight,
   ArrowUpRight
 } from 'lucide-react';
+import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 export default function Dashboard() {
-  const { farm, weather, sensors } = farmData;
-  const [selectedSensor, setSelectedSensor] = useState<Sensor>(sensors[0]);
+  const { farm, weather } = fallbackData;
+  const [sensors, setSensors] = useState<Sensor[]>([]);
+  const [selectedSensor, setSelectedSensor] = useState<Sensor | null>(null);
+
+  useEffect(() => {
+    api.getSensors().then(data => {
+      if (data && data.length > 0) {
+        setSensors(data);
+        setSelectedSensor(data[0]);
+      } else {
+        setSensors(fallbackData.sensors);
+        setSelectedSensor(fallbackData.sensors[0]);
+      }
+    }).catch(err => {
+      console.error("Failed to fetch sensors", err);
+      setSensors(fallbackData.sensors);
+      setSelectedSensor(fallbackData.sensors[0]);
+    });
+  }, []);
+
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const circlesRef = useRef<L.Circle[]>([]);
@@ -33,8 +54,8 @@ export default function Dashboard() {
   // Initialize Map
   useEffect(() => {
     if (mapContainerRef.current && !mapInstanceRef.current) {
-      const centerLat = sensors[0]?.coordinates.lat || 36.4028;
-      const centerLng = sensors[0]?.coordinates.lng || 2.8527;
+      const centerLat = sensors[0]?.coordinates?.lat || 36.4028;
+      const centerLng = sensors[0]?.coordinates?.lng || 2.8527;
 
       const map = L.map(mapContainerRef.current, {
         center: [centerLat, centerLng],
@@ -50,11 +71,18 @@ export default function Dashboard() {
 
       mapInstanceRef.current = map;
     }
-  }, []);
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [sensors]);
 
   // Update Map Markers
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstanceRef.current || !selectedSensor) return;
     const map = mapInstanceRef.current;
 
     circlesRef.current.forEach(c => c.remove());
@@ -64,11 +92,14 @@ export default function Dashboard() {
       const isSelected = sensor.id === selectedSensor.id;
       const color = sensor.health_score >= 70 ? '#10b981' : sensor.health_score >= 40 ? '#f59e0b' : '#ef4444';
       
-      const circle = L.circle([sensor.coordinates.lat, sensor.coordinates.lng], {
+      const lat = sensor.coordinates?.lat || (sensor.zone === 'Champ Nord' ? 36.4028 : 36.3995) + (Math.random() * 0.001);
+      const lng = sensor.coordinates?.lng || (sensor.zone === 'Champ Nord' ? 2.8527 : 2.8412) + (Math.random() * 0.001);
+
+      const circle = L.circle([lat, lng], {
         color: isSelected ? '#ffffff' : color,
         fillColor: color,
         fillOpacity: isSelected ? 0.8 : 0.5,
-        radius: sensor.radius_meters,
+        radius: sensor.radius_meters || 50,
         weight: isSelected ? 3 : 2,
         className: 'cursor-pointer transition-all'
       }).addTo(map);
@@ -79,7 +110,7 @@ export default function Dashboard() {
 
       circle.on('click', () => {
         setSelectedSensor(sensor);
-        map.flyTo([sensor.coordinates.lat, sensor.coordinates.lng], 17, { animate: true, duration: 0.8 });
+        map.flyTo([lat, lng], 17, { animate: true, duration: 0.8 });
       });
 
       circlesRef.current.push(circle);
@@ -98,6 +129,11 @@ export default function Dashboard() {
     if (score >= 40) return 'bg-orange-500';
     return 'bg-red-500';
   };
+
+  // Loading state
+  if (!selectedSensor || sensors.length === 0) {
+    return <div className="p-8 text-center text-slate-500">Loading sensor data...</div>;
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#f8f9fa] text-slate-800 font-sans">
@@ -250,9 +286,9 @@ export default function Dashboard() {
                 <div>
                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-3">المؤشرات الحيوية</h4>
                    <div className="grid grid-cols-3 gap-4">
-                      <CompactStatusItem icon={FlaskConical} label="pH" value={selectedSensor.readings.pH} unit="" status="optimal" />
-                      <CompactStatusItem icon={Zap} label="EC" value={selectedSensor.readings.EC_dS_per_m} unit="dS/m" status="normal" />
-                      <CompactStatusItem icon={Thermometer} label="Temp" value={selectedSensor.readings.temperature_celsius} unit="°C" status="normal" />
+                      <CompactStatusItem icon={FlaskConical} label="pH" value={selectedSensor.readings?.pH ?? (selectedSensor as any).ph ?? 0} unit="" status="optimal" />
+                      <CompactStatusItem icon={Zap} label="EC" value={selectedSensor.readings?.EC_dS_per_m ?? (selectedSensor as any).ec ?? 0} unit="dS/m" status="normal" />
+                      <CompactStatusItem icon={Thermometer} label="Temp" value={selectedSensor.readings?.temperature_celsius ?? (selectedSensor as any).temperature ?? 0} unit="°C" status="normal" />
                    </div>
                 </div>
 
@@ -265,9 +301,9 @@ export default function Dashboard() {
                       </button>
                    </div>
                    <div className="space-y-3">
-                      <CompactBar label="N" value={selectedSensor.readings.nitrogen_mg_per_kg || 0} max={80} target={[40, 60]} color="bg-emerald-500" />
-                      <CompactBar label="P" value={selectedSensor.readings.phosphorus_mg_per_kg || 0} max={40} target={[15, 25]} color="bg-rose-500" />
-                      <CompactBar label="K" value={selectedSensor.readings.potassium_mg_per_kg || 0} max={300} target={[150, 200]} color="bg-amber-500" />
+                      <CompactBar label="N" value={selectedSensor.readings?.nitrogen_mg_per_kg ?? (selectedSensor as any).nitrogen ?? 0} max={80} target={[40, 60]} color="bg-emerald-500" />
+                      <CompactBar label="P" value={selectedSensor.readings?.phosphorus_mg_per_kg ?? (selectedSensor as any).phosphorus ?? 0} max={40} target={[15, 25]} color="bg-rose-500" />
+                      <CompactBar label="K" value={selectedSensor.readings?.potassium_mg_per_kg ?? (selectedSensor as any).potassium ?? 0} max={300} target={[150, 200]} color="bg-amber-500" />
                    </div>
                 </div>
 
@@ -277,9 +313,9 @@ export default function Dashboard() {
 
         {/* TIER 2: Key Readings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-           <ReadingCard label="النيتروجين" value={selectedSensor.readings.nitrogen_mg_per_kg} unit="mg/kg" status="low" />
-           <ReadingCard label="الفوسفور" value={selectedSensor.readings.phosphorus_mg_per_kg} unit="mg/kg" status="critical" />
-           <ReadingCard label="البوتاسيوم" value={selectedSensor.readings.potassium_mg_per_kg} unit="mg/kg" status="high" />
+           <ReadingCard label="النيتروجين" value={selectedSensor.readings?.nitrogen_mg_per_kg ?? (selectedSensor as any).nitrogen ?? 0} unit="mg/kg" status="low" />
+           <ReadingCard label="الفوسفور" value={selectedSensor.readings?.phosphorus_mg_per_kg ?? (selectedSensor as any).phosphorus ?? 0} unit="mg/kg" status="critical" />
+           <ReadingCard label="البوتاسيوم" value={selectedSensor.readings?.potassium_mg_per_kg ?? (selectedSensor as any).potassium ?? 0} unit="mg/kg" status="high" />
            <ReadingCard label="المادة العضوية" value="2.5" unit="%" status="medium" />
         </div>
 
@@ -295,9 +331,9 @@ export default function Dashboard() {
                  <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-medium">محدث للتو</span>
               </div>
               <div className="space-y-6">
-                 <DetailedRow label="النيتروجين" value={selectedSensor.readings.nitrogen_mg_per_kg} target={60} unit="mg/kg" />
-                 <DetailedRow label="الفوسفور" value={selectedSensor.readings.phosphorus_mg_per_kg} target={25} unit="mg/kg" alert />
-                 <DetailedRow label="البوتاسيوم" value={selectedSensor.readings.potassium_mg_per_kg} target={150} unit="mg/kg" />
+                 <DetailedRow label="النيتروجين" value={selectedSensor.readings?.nitrogen_mg_per_kg ?? (selectedSensor as any).nitrogen ?? 0} target={60} unit="mg/kg" />
+                 <DetailedRow label="الفوسفور" value={selectedSensor.readings?.phosphorus_mg_per_kg ?? (selectedSensor as any).phosphorus ?? 0} target={25} unit="mg/kg" alert />
+                 <DetailedRow label="البوتاسيوم" value={selectedSensor.readings?.potassium_mg_per_kg ?? (selectedSensor as any).potassium ?? 0} target={150} unit="mg/kg" />
               </div>
            </div>
 

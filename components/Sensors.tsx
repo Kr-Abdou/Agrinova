@@ -62,8 +62,9 @@ export default function PrecisionSoilMap() {
 
   // --- Map Init ---
   useEffect(() => {
+    let map: L.Map | null = null;
     if (mapContainerRef.current && !mapInstance) {
-      const map = L.map(mapContainerRef.current, {
+      map = L.map(mapContainerRef.current, {
         zoomControl: false, attributionControl: false, scrollWheelZoom: true 
       });
       
@@ -79,6 +80,13 @@ export default function PrecisionSoilMap() {
       zonesLayerRef.current = layerGroup;
       setMapInstance(map);
     }
+
+    return () => {
+      if (map) {
+        map.remove();
+        setMapInstance(null);
+      }
+    };
   }, []);
 
   // --- Draw Zones ---

@@ -687,7 +687,7 @@ Active risks are tracked in a dedicated **Risk Register** database:
 |--------|------|-----------------|
 | **Hadj Hamdi Abderrahmane** | Project Manager (PM) | Planning, scheduling, arbitration, risk management, go/no-go decisions |
 | **Kermiche Abderrahmane** | Frontend & UX lead | Interfaces web & mobile, linking with APIs, User Experience , Client Management|
-| **HH Abderrahmane** | Backend & IoT | API, Ingestion, Settings, Provisioning, Logical connectivity |
+| **Badereddine Derdour** | Backend & IoT | API, Ingestion, Settings, Provisioning, Logical connectivity |
 
 ### 12.8. Notion Workspace Structure
 

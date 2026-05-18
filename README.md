@@ -3,6 +3,10 @@
 > **An intelligent decision-support information system for precision agriculture, built around a complete ETL (Extract–Transform–Load) pipeline that collects soil sensor data, structures it into a relational database, and delivers actionable insights through an interactive analytical dashboard.**
 
 ---
+> [!IMPORTANT]
+> This project is entirely made with AI tools and no code tools such as **Google Ai Studion** & **Antigravity**, the purpose of this project is to demonstrate the capibilities of delivering an Information system using vibe coding. This project is only for Prototype demonstration.
+
+---
 
 ## Table of Contents
 

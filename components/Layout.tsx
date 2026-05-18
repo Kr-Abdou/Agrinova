@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Sprout, 
-  Activity, 
-  Droplets, 
-  Bug, 
-  TrendingUp, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Sprout,
+  Activity,
+  Droplets,
+  Bug,
+  TrendingUp,
+  Settings,
   Menu,
   X,
   FileText
@@ -37,16 +37,16 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen bg-[#f5f5f1] text-slate-800 font-sans overflow-hidden" dir="rtl">
-      
+
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-l border-slate-200 h-full">
         <div className="p-6 border-b border-slate-100 flex items-center gap-2">
           <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
             <Sprout className="text-white w-5 h-5" />
           </div>
-          <span className="text-xl font-bold text-slate-800 tracking-tight">أجري سمارت</span>
+          <span className="text-xl font-bold text-slate-800 tracking-tight">AGRINOVA</span>
         </div>
-        
+
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1 px-3">
             {navItems.map((item) => (
@@ -54,10 +54,9 @@ export default function Layout() {
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                      isActive 
-                        ? 'bg-teal-50 text-teal-700 font-medium' 
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
+                      ? 'bg-teal-50 text-teal-700 font-medium'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`
                   }
                 >
@@ -85,7 +84,7 @@ export default function Layout() {
             <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
               <Sprout className="text-white w-5 h-5" />
             </div>
-            <span className="text-lg font-bold">أجري سمارت</span>
+            <span className="text-lg font-bold">AGRINOVA</span>
           </div>
           <button onClick={toggleMenu} className="p-2 text-slate-600">
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -95,24 +94,23 @@ export default function Layout() {
         {/* Mobile Navigation Menu Overlay */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute inset-0 z-10 bg-white pt-20 px-4 pb-6 overflow-y-auto">
-             <nav className="space-y-2">
-                {navItems.map((item) => (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center gap-4 px-4 py-3 rounded-lg text-lg ${
-                        isActive 
-                          ? 'bg-teal-50 text-teal-700 font-medium' 
-                          : 'text-slate-600 border border-slate-100'
-                      }`
-                    }
-                  >
-                    <item.icon className="w-6 h-6" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                ))}
-             </nav>
+            <nav className="space-y-2">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-4 px-4 py-3 rounded-lg text-lg ${isActive
+                      ? 'bg-teal-50 text-teal-700 font-medium'
+                      : 'text-slate-600 border border-slate-100'
+                    }`
+                  }
+                >
+                  <item.icon className="w-6 h-6" />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </nav>
           </div>
         )}
 

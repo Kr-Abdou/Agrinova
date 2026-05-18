@@ -17,6 +17,7 @@
 9. [Installation & Setup](#9-installation--setup)
 10. [API Reference](#10-api-reference)
 11. [Future Roadmap](#11-future-roadmap)
+12. [Project Management](#12-project-management)
 
 ---
 
@@ -480,6 +481,227 @@ The backend exposes the following RESTful endpoints:
 | **Phase 4** | AI Advisory (Gemini) | Re-enable the Gemini AI service for intelligent crop and fertilization recommendations |
 | **Phase 5** | Mobile Responsive | Optimize the dashboard for tablet and mobile field use |
 | **Phase 6** | Multi-Farm Support | Extend the system to manage multiple farms per user account |
+
+---
+
+## 12. Project Management
+
+The Agrinova project follows a rigorous **PMBOK-aligned project management methodology**, with all governance artifacts maintained in a dedicated [Notion workspace](https://www.notion.so/AGRINOVA-1-7f4a4bce52db82d6ae0e81cb9a0a2961). The project management phase encompasses scope definition, scheduling, cost estimation, quality assurance, and risk management.
+
+### 12.1. Cahier des Charges (Project Charter)
+
+The project is formalized through a **Cahier des Charges — MVP Minimum Opérationnel Terrain (MOT)** (v1.0, February 2026), which defines:
+
+- **Chef de Projet:** Hadj Hamdi Abderrahmane
+- **Product Vision:** Soil monitoring + indicative recommendations + future trajectory towards a decision engine
+- **Target Clients:** B2B (farm enterprises) & B2G (government institutions)
+- **Pilot Perimeter:** 1–3 farms, 5–10 sensor units, Médéa region, minimum 2-week deployment
+
+**Primary MVP Objective:**
+1. Collect soil measurements (pH, EC, NPK, moisture, temperature)
+2. Transmit data to the platform
+3. Generate indicative recommendations (irrigation, fertilization, nutrient adjustment, disease prediction)
+4. Display results on web and mobile
+5. Be installable via standardized SOP (Standard Operating Procedure)
+
+**Scope Boundaries:**
+
+| ✅ In Scope (MVP MOT) | ❌ Out of Scope |
+|---|---|
+| Soil data ingestion & historization | Certified agronomic diagnostics |
+| Dashboard web + mobile view | Automated machine execution |
+| Indicative recommendations with traceability | Deep learning in production |
+| Device onboarding & provisioning | Multi-region large-scale deployment |
+| SOP installation + incident triage | Enterprise SLAs |
+
+### 12.2. Work Breakdown Structure (WBS)
+
+The project is decomposed into a **three-phase WBS** across six workstreams:
+
+```mermaid
+graph TD
+    A["🌾 AGRINOVA Project"] --> P1["Phase 1: Prototype"]
+    A --> P2["Phase 2: MVP"]
+    A --> P3["Phase 3: Pilot"]
+
+    P1 --> W1P["Governance"]
+    P1 --> W2P["Backend"]
+    P1 --> W3P["Frontend"]
+    P1 --> W4P["IoT"]
+
+    P2 --> W1M["Governance"]
+    P2 --> W2M["Backend"]
+    P2 --> W3M["Frontend"]
+    P2 --> W4M["IoT"]
+    P2 --> W5M["QA"]
+
+    P3 --> W1L["Governance"]
+    P3 --> W3L["Frontend"]
+    P3 --> W4L["IoT"]
+    P3 --> W5L["QA"]
+    P3 --> W6L["Field Ops"]
+
+    style A fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#000
+    style P1 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+    style P2 fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#000
+    style P3 fill:#fce7f3,stroke:#ec4899,stroke-width:2px,color:#000
+```
+
+| Phase | Workstreams | Key Deliverables |
+|-------|-------------|------------------|
+| **Prototype** | Governance, Backend, Frontend, IoT | Sensor data collection proof-of-concept, initial dashboard UI |
+| **MVP** | Governance, Backend, Frontend, IoT, QA | Functional platform with ETL pipeline, API layer, interactive maps |
+| **Pilot** | Governance, Frontend, IoT, QA, Field Ops | Field deployment on 1–3 farms, SOP documentation, incident management |
+
+Each task in the WBS is tracked with: **WBS Code**, **Priority** (P0/P1/P2), **Effort** (S/M/L), **Dependencies**, **Start/End dates**, and **Workstream assignment**.
+
+### 12.3. Project Scheduling — PERT & CPM
+
+The project schedule is managed using a **PERT/CPM (Program Evaluation and Review Technique / Critical Path Method)** database with the following attributes per task:
+
+- **Three-Point Duration Estimates:** Optimistic (O), Most Likely (M), Pessimistic (P)
+- **Expected Duration:** Calculated via PERT formula `(O + 4M + P) / 6`
+- **Early Start (ES) / Early Finish (EF):** Forward pass calculations
+- **Late Start (LS) / Late Finish (LF):** Backward pass approximations
+- **Total Float & Free Float:** Slack analysis for scheduling flexibility
+- **Critical Path Identification:** Tasks with zero float are flagged automatically
+
+```mermaid
+graph LR
+    subgraph Critical["🔴 Critical Path"]
+        T1["Planning & Architecture"] --> T2["Backend Development"]
+        T2 --> T3["Integration Testing"]
+        T3 --> T4["Pilot Deployment"]
+    end
+
+    subgraph Parallel["🟢 Parallel Path"]
+        T5["Frontend UI"] --> T3
+        T6["IoT Hardware Setup"] --> T3
+    end
+
+    style Critical fill:#fee2e2,stroke:#ef4444,stroke-width:2px
+    style Parallel fill:#d1fae5,stroke:#10b981,stroke-width:2px
+```
+
+Each task also tracks **Risk Impact (days)**, producing an **Adjusted Duration** that accounts for identified risk factors.
+
+### 12.4. Cost Management
+
+Cost management follows the three PMBOK processes: **estimate costs → determine budget → control costs**.
+
+#### Estimation Methods
+
+Two industry-standard estimation methods were applied and cross-validated:
+
+| Method | Approach | Result |
+|--------|----------|--------|
+| **Function Points (Morely)** | Bottom-up estimation based on system functionalities (inputs, outputs, queries, files) | Baseline functional sizing |
+| **COCOMO** | Parametric model based on 16 KISL (thousands of source instructions) — classified as a "simple project" | Charge corrigée: **79.72 person-months**, Délai corrigé: **13.20 months** |
+
+#### Budget
+
+- **Daily Cost Rate:** 3,500 DZD / person-day
+- **Management Reserve:** 10% on subtotal
+- **Total Approved Budget (BAC):** **625,685 DZD**
+- **Budget Distribution:** Phased across Prototype → MVP → Pilot
+
+#### Earned Value Management (EVM)
+
+Project performance is monitored using **Management par la Valeur Acquise (MVA)** with the following KPIs:
+
+| Indicator | Formula | Meaning |
+|-----------|---------|---------|
+| **CPI** (Cost Performance Index) | EV / AC | Budget efficiency (>1 = under budget) |
+| **SPI** (Schedule Performance Index) | EV / PV | Schedule efficiency (>1 = ahead of schedule) |
+| **CV** (Cost Variance) | EV − AC | Budget deviation |
+| **SV** (Schedule Variance) | EV − PV | Schedule deviation |
+| **EAC** (Estimate at Completion) | BAC / CPI | Projected final cost |
+
+### 12.5. Quality Management
+
+Quality management is structured around three processes aligned with **ISO 9000** principles and the **Deming PDCA Cycle**:
+
+#### Quality Framework
+
+```mermaid
+graph TD
+    QP["📋 Plan Quality"] --> QA["✅ Quality Assurance"]
+    QA --> QC["🔍 Quality Control"]
+    QC -->|"Feedback Loop"| QP
+
+    QP --- P1["ISO 9000 Standards"]
+    QP --- P2["Boehm-McCall Factors"]
+    QA --- A1["PDCA Continuous Improvement"]
+    QA --- A2["Waste Elimination"]
+    QC --- C1["Pareto Analysis (80/20)"]
+    QC --- C2["Variance Detection"]
+
+    style QP fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+    style QA fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#000
+    style QC fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#000
+```
+
+| Process | Scope | Key Tools |
+|---------|-------|-----------|
+| **Plan Quality** | Define quality approach, standards, and factors | ISO 9000, Boehm-McCall quality factors, Cost of Quality analysis |
+| **Quality Assurance** | Continuous process improvement, eliminate waste | PDCA cycle (Plan → Do → Check → Act), role-based quality ownership |
+| **Quality Control** | Inspect deliverables, detect variances, correct defects | Pareto charts (80/20), variance detection, corrective action plans |
+
+#### Selected Quality Factors (Boehm-McCall)
+
+Quality is evaluated across four perspectives: **Functional**, **Usage**, **Maintenance**, and **Economic** — ensuring the system meets both technical correctness and field usability requirements.
+
+### 12.6. Risk Management
+
+Active risks are tracked in a dedicated **Risk Register** database:
+
+| Field | Purpose |
+|-------|---------|
+| **Risk Name** | Description of the identified risk |
+| **Type** | Classification (Technical, Operational, External) |
+| **Probability** | Likelihood (Low / Medium / High) |
+| **Severity** | Impact level (Low / Medium / High) |
+| **Trigger** | Conditions that activate the risk |
+| **Mitigation** | Planned response strategy |
+| **Owner** | Responsible team member |
+| **Status** | Current state (Open / Mitigated / Closed) |
+| **Related WBS** | Linked tasks affected by the risk |
+
+### 12.7. Governance & Stakeholders
+
+#### External Stakeholders
+
+| Role | Responsibility |
+|------|---------------|
+| **Client B2B / Farm Manager** | Operational decision-maker |
+| **Field Manager** | Daily user, incident reporting |
+| **Agronomist (Consultant)** | Validation of recommendation rules coherence |
+| **Client B2G** | Consolidated reporting and supervision (extended phase) |
+
+#### Internal Team
+
+| Member | Role | Responsibilities |
+|--------|------|-----------------|
+| **HH Abderrahmane** | Project Manager (PM) | Planning, scheduling, arbitration, risk management, go/no-go decisions |
+
+### 12.8. Notion Workspace Structure
+
+All project management artifacts are maintained in a structured Notion workspace:
+
+| Artifact | Type | Purpose |
+|----------|------|---------|
+| **Cahier des Charges** | Page | Project charter and scope definition |
+| **AGRINOVA WBS** | Page + Databases | Work Breakdown Structure with task sizing |
+| **PERT + CPM Scheduling** | Database | Task scheduling with critical path analysis |
+| **Management des Coûts** | Page | Cost estimation (PF + COCOMO), budgeting, and EVM |
+| **Quality Management** | Page | ISO 9000, PDCA, Boehm-McCall quality framework |
+| **RACI MOT Submatrices** | Page | Responsibility assignment matrix |
+| **Risk Register** | Database | Active risk tracking and mitigation |
+| **Decisions Log** | Database | Architectural and management decision records |
+| **Procurement Budget** | Database | Hardware and material procurement tracking |
+| **Milestones** | Database | Phase-gate milestone tracking |
+| **Weekly / Daily Todo** | Databases | Sprint planning and daily task management |
+| **Backlog Extensions** | Database | Future feature backlog (MVP → Pilot) |
 
 ---
 

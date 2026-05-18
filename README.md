@@ -486,13 +486,12 @@ The backend exposes the following RESTful endpoints:
 
 ## 12. Project Management
 
-The Agrinova project follows a rigorous **PMBOK-aligned project management methodology**, with all governance artifacts maintained in a dedicated [Notion workspace](https://www.notion.so/AGRINOVA-1-7f4a4bce52db82d6ae0e81cb9a0a2961). The project management phase encompasses scope definition, scheduling, cost estimation, quality assurance, and risk management.
+The Agrinova project follows a rigorous **PMBOK-aligned project management methodology**, with all governance artifacts maintained in a dedicated [Notion workspace]. The project management phase encompasses scope definition, scheduling, cost estimation, quality assurance, and risk management.
 
 ### 12.1. Cahier des Charges (Project Charter)
 
 The project is formalized through a **Cahier des Charges — MVP Minimum Opérationnel Terrain (MOT)** (v1.0, February 2026), which defines:
 
-- **Chef de Projet:** Hadj Hamdi Abderrahmane
 - **Product Vision:** Soil monitoring + indicative recommendations + future trajectory towards a decision engine
 - **Target Clients:** B2B (farm enterprises) & B2G (government institutions)
 - **Pilot Perimeter:** 1–3 farms, 5–10 sensor units, Médéa region, minimum 2-week deployment
@@ -682,7 +681,9 @@ Active risks are tracked in a dedicated **Risk Register** database:
 
 | Member | Role | Responsibilities |
 |--------|------|-----------------|
-| **HH Abderrahmane** | Project Manager (PM) | Planning, scheduling, arbitration, risk management, go/no-go decisions |
+| **Hadj Hamdi Abderrahmane** | Project Manager (PM) | Planning, scheduling, arbitration, risk management, go/no-go decisions |
+| **Kermiche Abderrahmane** | Frontend & UX lead | Interfaces web & mobile, linking with APIs, User Experience , Client Management|
+| **HH Abderrahmane** | Backend & IoT | API, Ingestion, Settings, Provisioning, Logical connectivity |
 
 ### 12.8. Notion Workspace Structure
 
